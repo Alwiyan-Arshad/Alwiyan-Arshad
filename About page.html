@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skills & Experience</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ──────────────────────────────────────────
+       ROOT VARIABLES & RESET
+    ────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:    #d4af6a;
+      --gold2:   #f5d88e;
+      --cyan:    #5ce1e6;
+      --white:   #f0eee8;
+      --glass:   rgba(255,255,255,0.055);
+      --border:  rgba(212,175,106,0.25);
+      --shadow:  rgba(92,225,230,0.18);
+    }
+
+    /* ──────────────────────────────────────────
+       BODY & CANVAS BACKGROUND
+    ────────────────────────────────────────── */
+    body {
+      background: #060a14;
+      font-family: 'Raleway', sans-serif;
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Fixed background image */
+    .bg-img {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(0.22) saturate(1.4);
+    }
+
+    /* Canvas for particles */
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Content layer */
+    .page-wrap {
+      position: relative;
+      z-index: 2;
+      padding: 0 20px 80px;
+    }
+
+    /* ──────────────────────────────────────────
+       SECTION HEADINGS
+    ────────────────────────────────────────── */
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(32px, 6vw, 60px);
+      text-align: center;
+      letter-spacing: 6px;
+      margin: 70px 0 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .section-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Decorative line under heading */
+    .title-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      opacity: 0;
+      transition: opacity 0.8s ease 0.3s;
+    }
+    .title-line.visible { opacity: 1; }
+    .title-line span {
+      display: block;
+      height: 1px;
+      width: clamp(60px, 12vw, 140px);
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .title-line em {
+      font-style: normal;
+      color: var(--gold);
+      font-size: 18px;
+    }
+
+    /* ──────────────────────────────────────────
+       SKILLS GRID
+    ────────────────────────────────────────── */
+    .skills-grid {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    /* ── SKILL CARD ── */
+    .skill-card {
+      flex: 0 0 clamp(260px, 28vw, 360px);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 28px 30px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        box-shadow 0.4s ease,
+        border-color 0.4s ease,
+        background 0.4s ease;
+    }
+    .skill-card.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    /* Stagger children */
+    .skill-card:nth-child(2) { transition-delay: 0.15s; }
+    .skill-card:nth-child(3) { transition-delay: 0.30s; }
+
+    /* Glow blob behind card */
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(92,225,230,0.12), transparent 70%);
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.5s;
+      opacity: 0;
+      border-radius: 50%;
+    }
+    .skill-card:hover::before { opacity: 1; }
+
+    /* Shimmer sweep on hover */
+    .skill-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.07) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .skill-card:hover::after { transform: translateX(100%); }
+
+    .skill-card:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: var(--gold);
+      box-shadow: 0 0 40px rgba(212,175,106,0.25), 0 20px 60px rgba(0,0,0,0.5);
+      transform: translateY(-8px) scale(1.03) !important;
+    }
+
+    /* Image circle */
+    .skill-img-wrap {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+    .skill-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(var(--gold), var(--cyan), var(--gold));
+      animation: spinBorder 4s linear infinite;
+      z-index: 0;
+    }
+    @keyframes spinBorder {
+      to { transform: rotate(360deg); }
+    }
+    .skill-img-wrap img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      position: relative;
+      z-index: 1;
+      border: 3px solid #060a14;
+    }
+
+    .skill-card h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: var(--gold2);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .skill-card p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: rgba(240,238,232,0.78);
+    }
+
+    /* Skill tag badges */
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .skill-tags span {
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(92,225,230,0.4);
+      color: var(--cyan);
+      background: rgba(92,225,230,0.07);
+      text-transform: uppercase;
+    }
+
+    /* ──────────────────────────────────────────
+       EXPERIENCE CARDS
+    ────────────────────────────────────────── */
+    .exp-grid {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    .exp-card {
+      flex: 0 0 clamp(260px, 28vw, 380px);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 34px 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+
+      opacity: 0;
+      transform: translateY(50px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        box-shadow 0.4s,
+        border-color 0.4s;
+    }
+    .exp-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .exp-card:nth-child(2) { transition-delay: 0.15s; }
+    .exp-card:nth-child(3) { transition-delay: 0.30s; }
+
+    .exp-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 40px rgba(92,225,230,0.2), 0 20px 50px rgba(0,0,0,0.5);
+      transform: translateY(-8px) !important;
+    }
+
+    /* Left accent bar */
+    .exp-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(to bottom, var(--gold), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .exp-card:hover::before { opacity: 1; }
+
+    .exp-title {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: var(--gold2);
+      text-align: center;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    /* Duration badge */
+    .exp-duration {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(212,175,106,0.18), rgba(92,225,230,0.12));
+      border: 1px solid var(--border);
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .exp-list {
+      list-style: none;
+      padding: 0;
+    }
+    .exp-list li {
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 8px 0 8px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(240,238,232,0.80);
+      position: relative;
+    }
+    .exp-list li:last-child { border-bottom: none; }
+    .exp-list li::before {
+      content: '◆';
+      position: absolute;
+      left: 0;
+      font-size: 8px;
+      top: 10px;
+      color: var(--cyan);
+    }
+
+    /* ──────────────────────────────────────────
+       HOBBY CARDS
+    ────────────────────────────────────────── */
+    .hobby-card {
+      flex: 0 0 clamp(260px, 28vw, 380px);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 34px 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+
+      opacity: 0;
+      transform: translateY(50px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        box-shadow 0.4s,
+        border-color 0.4s;
+    }
+    .hobby-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hobby-card:nth-child(2) { transition-delay: 0.15s; }
+    .hobby-card:nth-child(3) { transition-delay: 0.30s; }
+
+    .hobby-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 40px rgba(212,175,106,0.22), 0 20px 50px rgba(0,0,0,0.5);
+      transform: translateY(-8px) !important;
+    }
+
+    /* Icon circle */
+    .hobby-icon {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: linear-gradient(135deg, rgba(212,175,106,0.2), rgba(92,225,230,0.1));
+      border: 1px solid var(--border);
+      transition: transform 0.5s ease;
+    }
+    .hobby-card:hover .hobby-icon { transform: rotate(15deg) scale(1.1); }
+
+    .hobby-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--gold2);
+      margin-bottom: 14px;
+    }
+
+    .hobby-list {
+      list-style: none;
+      padding: 0;
+    }
+    .hobby-list li {
+      font-size: 13.5px;
+      line-height: 1.7;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(240,238,232,0.78);
+    }
+    .hobby-list li:last-child { border-bottom: none; }
+
+    /* ──────────────────────────────────────────
+       SCROLLBAR
+    ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #060a14; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--gold), var(--cyan));
+      border-radius: 10px;
+    }
+
+    /* ──────────────────────────────────────────
+       FLOATING ORBS (ambient glow)
+    ────────────────────────────────────────── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+    .orb1 { width: 400px; height: 400px; background: #1a3a5c; top: -100px; left: -100px; }
+    .orb2 { width: 300px; height: 300px; background: #3a1a5c; bottom: 10%; right: -80px; animation-delay: -4s; }
+    .orb3 { width: 250px; height: 250px; background: #1a5c4a; top: 40%; left: 20%; animation-delay: -8s; }
+    @keyframes floatOrb {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background: dark space/tech image from Unsplash -->
+  <img
+    class="bg-img"
+    src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80&fit=crop"
+    alt=""
+  />
+
+  <!-- Ambient orbs -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- Particle canvas -->
+  <canvas id="starCanvas"></canvas>
+
+  <div class="page-wrap">
+
+    <!-- ═══════════════ SKILLS ═══════════════ -->
+    <h1 class="section-title reveal">SKILLS</h1>
+    <div class="title-line reveal">
+      <span></span><em>✦</em><span></span>
+    </div>
+
+    <div class="skills-grid">
+
+      <!-- Web Developer / Designer -->
+      <div class="skill-card reveal">
+        <div class="skill-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=220&h=220&fit=crop&q=90"
+            alt="Web Developer"
+          />
+        </div>
+        <h2>Web Developer / Designer</h2>
+        <p>Clean, modern and responsive websites using HTML, CSS, Bootstrap and JavaScript. Beautiful layouts with complete functional web pages. Aspiring full-stack developer.</p>
+        <div class="skill-tags">
+          <span>HTML</span><span>CSS</span><span>JS</span><span>Bootstrap</span>
+        </div>
+      </div>
+
+      <!-- Computer Operator -->
+      <div class="skill-card reveal">
+        <div class="skill-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1587614382346-4ec70e388b28?w=220&h=220&fit=crop&q=90"
+            alt="Computer Operator"
+          />
+        </div>
+        <h2>Computer Operator</h2>
+        <p>Skilled in MS Word, Excel, PowerPoint and InPage with fast typing, accuracy and clean formatting. Experienced in office tasks and data entry.</p>
+        <div class="skill-tags">
+          <span>MS Word</span><span>Excel</span><span>InPage</span><span>Data Entry</span>
+        </div>
+      </div>
+
+      <!-- Drop Shipping -->
+      <div class="skill-card reveal">
+        <div class="skill-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=220&h=220&fit=crop&q=90"
+            alt="Drop Shipping"
+          />
+        </div>
+        <h2>Drop Shipping</h2>
+        <p>Experienced in product research, store listings, customer handling, supplier communication and improving store performance across platforms.</p>
+        <div class="skill-tags">
+          <span>Research</span><span>Listings</span><span>Suppliers</span><span>CRM</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ EXPERIENCE ═══════════════ -->
+    <h1 class="section-title reveal">EXPERIENCE</h1>
+    <div class="title-line reveal">
+      <span></span><em>✦</em><span></span>
+    </div>
+
+    <div class="exp-grid">
+
+      <div class="exp-card reveal">
+        <div style="text-align:center">
+          <div class="exp-duration">4 MONTHS</div>
+        </div>
+        <div class="exp-title">Web Developer</div>
+        <ul class="exp-list">
+          <li>Developed responsive websites</li>
+          <li>Created UI with HTML, CSS &amp; JavaScript</li>
+          <li>Worked on animations &amp; layouts</li>
+          <li>Improved website performance</li>
+          <li>Completed real client-like projects</li>
+        </ul>
+      </div>
+
+      <div class="exp-card reveal">
+        <div style="text-align:center">
+          <div class="exp-duration">7 MONTHS</div>
+        </div>
+        <div class="exp-title">Computer Operator</div>
+        <ul class="exp-list">
+          <li>Professional documents &amp; spreadsheets</li>
+          <li>Fast accurate data entry</li>
+          <li>Excel formulas, Word formatting</li>
+          <li>Urdu Typing (InPage)</li>
+          <li>Office record management</li>
+        </ul>
+      </div>
+
+      <div class="exp-card reveal">
+        <div style="text-align:center">
+          <div class="exp-duration">6+ MONTHS</div>
+        </div>
+        <div class="exp-title">Drop Shipping</div>
+        <ul class="exp-list">
+          <li>Winning product research</li>
+          <li>Store listings &amp; descriptions</li>
+          <li>Order processing &amp; customer chat</li>
+          <li>Supplier communication</li>
+          <li>Store performance improvement</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ HOBBIES ═══════════════ -->
+    <h1 class="section-title reveal">HOBBIES</h1>
+    <div class="title-line reveal">
+      <span></span><em>✦</em><span></span>
+    </div>
+
+    <div class="exp-grid">
+
+      <div class="hobby-card reveal">
+        <div class="hobby-icon">💻</div>
+        <div class="hobby-title">Coding</div>
+        <ul class="hobby-list">
+          <li>Creating unique and functional digital solutions through code</li>
+          <li>Thinking creatively and solving real-world problems with logic</li>
+        </ul>
+      </div>
+
+      <div class="hobby-card reveal">
+        <div class="hobby-icon">📖</div>
+        <div class="hobby-title">Reading</div>
+        <ul class="hobby-list">
+          <li>Exploring new ideas and expanding knowledge through books</li>
+          <li>Growing personally and professionally through consistent reading</li>
+        </ul>
+      </div>
+
+      <div class="hobby-card reveal">
+        <div class="hobby-icon">🎮</div>
+        <div class="hobby-title">Editing &amp; Gaming</div>
+        <ul class="hobby-list">
+          <li>Expressing creativity through visual content editing</li>
+          <li>Sharpening focus, strategy and quick decision-making through gaming</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div><!-- /page-wrap -->
+
+  <script>
+    /* ──────────────────────────────────────────
+       PARTICLE CANVAS
+    ────────────────────────────────────────── */
+    (function () {
+      const canvas = document.getElementById('starCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const COUNT = 90;
+      const stars = Array.from({ length: COUNT }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 1.4 + 0.3,
+        opacity: Math.random(),
+        speed: Math.random() * 0.3 + 0.05,
+        pulse: Math.random() * Math.PI * 2,
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => {
+          s.pulse += 0.012;
+          const alpha = 0.3 + 0.5 * Math.abs(Math.sin(s.pulse));
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212,215,230,${alpha})`;
+          ctx.fill();
+
+          s.y -= s.speed;
+          if (s.y < -2) {
+            s.y = canvas.height + 2;
+            s.x = Math.random() * canvas.width;
+          }
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    /* ──────────────────────────────────────────
+       SCROLL REVEAL (IntersectionObserver)
+    ────────────────────────────────────────── */
+    const revealEls = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    /* ──────────────────────────────────────────
+       MOUSE PARALLAX on SKILL CARDS
+    ────────────────────────────────────────── */
+    document.querySelectorAll('.skill-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        card.style.transform = `translateY(-8px) scale(1.03) rotateX(${-dy * 6}deg) rotateY(${dx * 6}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    /* ──────────────────────────────────────────
+       CURSOR GLOW TRAIL
+    ────────────────────────────────────────── */
+    const trail = document.createElement('div');
+    Object.assign(trail.style, {
+      position: 'fixed', pointerEvents: 'none', zIndex: 9999,
+      width: '18px', height: '18px', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(92,225,230,0.55), transparent)',
+      transition: 'transform 0.1s ease, opacity 0.3s',
+      transform: 'translate(-50%, -50%)',
+      opacity: '0',
+    });
+    document.body.appendChild(trail);
+
+    document.addEventListener('mousemove', (e) => {
+      trail.style.left = e.clientX + 'px';
+      trail.style.top  = e.clientY + 'px';
+      trail.style.opacity = '1';
+    });
+    document.addEventListener('mouseleave', () => { trail.style.opacity = '0'; });
+  </script>
+</body>
+</html>
